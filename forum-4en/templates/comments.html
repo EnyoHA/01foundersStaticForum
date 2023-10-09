@@ -1,0 +1,39 @@
+{{define "Comments"}}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="static/layout.css">
+
+    <title>Document</title>
+</head>
+<body>
+
+        <a href="/comment?postid={{.postId}}" id="button">add you own comment</a>
+
+        {{range $comment := .comments }}
+
+       <section class="comment">
+            <h1>user id: {{$comment.userID}}</h1>
+            <h3>created date: {{$comment.createdDate}}</h3>
+            <h3>content: {{$comment.body}}</h3>
+            <br>
+            </section>
+            {{/* <hr style="height:2px;border-width:0;color:gray;background-color:gray"> */}}
+
+        {{end}}
+
+        <a href="/homepage" id="button">Back to posts</a>
+        <a href="/" id="button">Back home</a>
+
+
+
+<form method="POST" action="/homepage">
+
+</form>
+</body>
+</html>
+
+{{end}}

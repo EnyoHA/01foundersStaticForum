@@ -1,0 +1,182 @@
+{{define "YourPosts"}}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script
+      src="    https://kit.fontawesome.com/8a43f5c61b.js"
+      crossorigin="anonymous"
+    ></script>
+    <title>Document</title>
+    <link rel="stylesheet" href="static/layout.css" />
+  </head>
+  <body>
+    <a href="/post" id="button">add post</a>
+    {{range $post := . }}
+    <section class="post">
+      <h1 class="PostID" style="visibility: hidden">
+        Post ID: {{$post.postID}}
+      </h1>
+      <h1 class="User_ID">{{$post.userID}}</h1>
+      <h3>User title: {{$post.title}}</h3>
+      input1
+      <h3>User category: {{$post.category}}</h3>
+      <h3>Content: {{$post.body}}</h3>
+      <div class="voting">
+        <button class="likebtn">
+          <i class="fa-solid fa-thumbs-up"></i>
+        </button>
+
+        <lable class="input1" for="likebtn">{{$post.upvotes}}</lable>
+        {{/*
+        <input
+          class="input"
+          type="number"
+          id="input1"
+          value="{{$post.upvotes}}"
+          name=""
+        />
+        */}}
+
+        <button class="dislikebtn">
+          <i class="fa-solid fa-thumbs-down"></i>
+        </button>
+        <lable class="input2" for="dislikebtn">{{$post.downvotes}}</lable>
+        {{/*
+        <input type="number" id="input2" value="{{$post.downvotes}}" name="" />
+        */}}
+      </div>
+
+      <a href="/comments?postID={{$post.postID}}" id="button1">view comments</a>
+      <br />
+    </section>
+    {{end}}
+
+    <a href="/" id="button">Back home</a>
+    <a href="/homepage" id="button">Back to Posts</a>
+
+    <form method="POST" action="/homepage"></form>
+
+    <script type="text/javascript">
+      let likebtn = document.querySelectorAll(".likebtn");
+      let dislikebtn = document.querySelectorAll(".dislikebtn");
+      let input1 = document.getElementsByClassName("input1");
+      let input2 = document.getElementsByClassName("input2");
+      let userID = document.querySelectorAll(".User_ID");
+      let postID = document.getElementsByClassName("PostID");
+      let value;
+      console.log(userID);
+      function httpPost(theUrl, value) {
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", theUrl, false);
+        xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.send(JSON.stringify(value));
+        return xhr.response;
+      }
+      function httpGet(url) {
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", url, false);
+        xhr.send(null);
+        return xhr.responseText;
+      }
+
+      function Listen(item, index) {
+        item.addEventListener("click", () => {
+          let user_ID = userID[index].innerHTML;
+          let post_ID = postID[index].innerHTML.slice(18, 54);
+          let response = httpGet(
+            "http://localhost:8080/isLoggedIn?post_id=" +
+              post_ID +
+              "&user_id=" +
+              user_ID
+          );
+          console.log(response, "here");
+          if (response === "HAS LIKED") {
+            return;
+          } else if (response !== "NOT LOGGED") {
+            reaction = (parseInt(input1[index].innerHTML) + 1).toString();
+            input1[index].innerHTML = reaction;
+            let likes = parseInt(input1[index].innerHTML);
+            let dislike = parseInt(input2[index].innerHTML);
+            //to do
+            let comment_ID = "0";
+            let numberOfReactions = parseInt(likes) + parseInt(dislike);
+            console.log(postID[index].innerHTML, post_ID);
+
+            let url = "http://localhost:8080/like";
+            value = {
+              user_ID,
+              post_ID,
+              likes,
+              comment_ID,
+              numberOfReactions,
+              dislike,
+            };
+            let resp = httpPost(url, value);
+            input1[index].style.color = "green";
+          } else {
+            alert("Please login to like or dislike");
+          }
+        });
+      }
+      for (let index = 0; index < likebtn.length; index++) {
+        Listen(likebtn[index], index);
+      }
+
+      function ListenDislike(item, index) {
+        item.addEventListener("click", () => {
+          let user_ID = userID[index].innerHTML;
+          let post_ID = postID[index].innerHTML.slice(18, 54);
+          let response = httpGet(
+            "http://localhost:8080/isLoggedIn?post_id=" +
+              post_ID +
+              "&user_id=" +
+              user_ID
+          );
+          console.log(response, "here");
+          if (response === "HAS LIKED") {
+            return;
+          } else if (response !== "NOT LOGGED") {
+            reaction = (parseInt(input2[index].innerHTML) + 1).toString();
+            input2[index].innerHTML = reaction;
+            //todo
+            let post_ID = postID[index].innerHTML.slice(18, 54);
+            let likes = parseInt(input1[index].innerHTML);
+            let dislike = parseInt(input2[index].innerHTML);
+            //to do
+            console.log(postID[index].innerHTML.split(" ")[10]);
+            //to do
+            let comment_ID = "0";
+            let numberOfReactions = parseInt(likes) + parseInt(dislike);
+
+            let url = "http://localhost:8080/like";
+            value = {
+              user_ID,
+              post_ID,
+              likes,
+              comment_ID,
+              numberOfReactions,
+              dislike,
+            };
+            let resp = httpPost(url, value);
+            console.log(resp, value);
+            input2[index].style.color = "red";
+          } else {
+            alert("Please login to like or dislike");
+          }
+        });
+      }
+      for (let index = 0; index < dislikebtn.length; index++) {
+        ListenDislike(dislikebtn[index], index);
+      }
+      // dislikebtn.addEventListener("click", () => {
+      //   input2.innerHTML = parseInt(input2.innerHTML) + 1;
+      //   input2.style.color = "#ff0000";
+      // });
+    </script>
+  </body>
+</html>
+
+{{end}}
